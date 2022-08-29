@@ -29,6 +29,7 @@ const port = 5572;
 
 app.use(json());
 app.use((req, res, next) => {
+  if (req.path === '/ping') next();
   const userKey = req.header('UserKey');
   if (userKey) {
     res.locals.userKey = userKey;
@@ -39,6 +40,10 @@ app.use((req, res, next) => {
 });
 
 const randomSgbWord = () => sgbWords[Math.floor(Math.random() * sgbWords.length)];
+
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
 
 app.get('/pair', (req, res) => {
   const phrase = `${randomSgbWord()}-${randomSgbWord()}-${randomSgbWord()}-${randomSgbWord()}-${randomSgbWord()}`;
@@ -73,7 +78,7 @@ app.post('/pair', async (req, res) => {
         message: newMotdMessage,
       });
       await redis.del(phrase);
-      res.sendStatus(200);
+      res.send({ myMotdId, friendMotdId });
     } else {
       res.sendStatus(404);
     }
@@ -87,7 +92,7 @@ app.get('/motds/:id', async (req, res) => {
   if (motdId) {
     const motd = await Motd.findById(motdId).exec();
     if (motd && motd.to === res.locals.userKey) {
-      res.send(motd.message);
+      res.send({ message: motd.message });
     } else {
       res.sendStatus(403);
     }
