@@ -12,10 +12,12 @@ fs.readFile('./res/sgb-words.txt', (err, data) => {
   sgbWords = data.toString().split('\n');
 });
 
-const redis = createClient();
+const redis = createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379',
+});
 redis.connect();
 
-mongoose.connect('mongodb://localhost:27017/remotd');
+mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/remotd');
 const motdSchema = new mongoose.Schema({
   _id: String,
   from: String,

@@ -1,0 +1,17 @@
+services:
+  remotd:
+    build: .
+    ports:
+      - "5572:5572"
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/remotd
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - mongo
+  redis:
+    image: redis
+  mongo:
+    image: mongo
+    volumes:
+      - ./data:/data/db
